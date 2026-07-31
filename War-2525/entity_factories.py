@@ -1,6 +1,26 @@
-from entity import Entity
+from components.ai import HostileEnemy
+from components.fighter import Fighter
+from entity import Actor
 
-player = Entity(char="@", color=(255, 255, 255), name="Player", blocks_movement=True)
+player = Actor(
+    char="@",
+    color=(255, 255, 255,),
+    name="Player",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=100, defense=5, power=20)
+)
 
-muman = Entity(char="M", color=(63, 127, 63), name="Muman", blocks_movement=True)
-mumanscienist = Entity(char="M", color=(0, 127, 0), name="Muman Scienist", blocks_movement=True)
+muman = Actor(
+    char="M",
+    color=(63, 126, 63),
+    name="Muman",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=50, defense=4, power=15),
+)
+mumanscienist = Actor(
+    char="M",
+    color=(20, 123, 0),
+    name="Muman Scienist",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=55, defense=5, power=11)
+)
