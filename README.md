@@ -1,6 +1,6 @@
 # WAR-2525
 
-An Open Source roguelike built in C++ inspired by C:DDA and Wasteland
+An Open Source roguelike built in python inspired by C:DDA and Wasteland
 
 ## Overveiw
 Set in the U.S in 2525 after a war between three factions starts the wasteland. You are a survivor of no renown who must survive at all costs but beware! You cant trust anyone.
