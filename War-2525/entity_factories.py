@@ -4,23 +4,24 @@ from entity import Actor
 
 player = Actor(
     char="@",
-    color=(255, 255, 255,),
+    color=(255, 255, 255),
     name="Player",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=100, defense=5, power=20)
+    fighter=Fighter(hp=30, defense=2, power=5),
 )
 
-muman = Actor(
-    char="M",
-    color=(63, 126, 63),
-    name="Muman",
+orc = Actor(
+    char="o",
+    color=(63, 127, 63),
+    name="Orc",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=50, defense=4, power=15),
+    fighter=Fighter(hp=10, defense=0, power=3),
 )
-mumanscienist = Actor(
-    char="M",
-    color=(20, 123, 0),
-    name="Muman Scienist",
+
+troll = Actor(
+    char="T",
+    color=(0, 127, 0),
+    name="Troll",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=55, defense=5, power=11)
+    fighter=Fighter(hp=16, defense=1, power=4),
 )

@@ -1,0 +1,23 @@
+{
+    "muman_feral": {
+        "name": "Feral Muman",
+        "char": "m",
+        "color": [0, 0, 255],
+        "hp": 10,
+        "defense": 1,
+        "power" : 3,
+        "ai_type": "HostileEnemy",
+        "description" : "This man was once human but their skin is peeling back revealing there white grinning teeth. They still seem to have some brain function"
+    },
+    "muman": {
+        "name": "Muman",
+        "char": "M",
+        "color": [20, 20, 255],
+        "hp": 10,
+        "defense": 1,
+        "power": 5,
+        "ai_type": "HostileEnemy",
+        "description" : "A muman, once a human before the virus got them, turning them into a vessel to murder those who do not have O blood, be careufl of being cut as its pink skin is full of the virus."
+    }
+    
+}

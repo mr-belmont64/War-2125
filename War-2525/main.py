@@ -1,57 +1,68 @@
-from __future__ import annotations
-
+#!/usr/bin/env python3
 import copy
-from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from game_map import GameMap
+import tcod
 
-T = TypeVar("T", bound="Entity")
+import color
+from engine import Engine
+import entity_factories
+from input_handler import MainGameEventHandler
+from procgen import generate_dungeon
 
 
-class Entity:
-    """
-    A generic object to represent players, enemies, items, etc.
-    """
+def main() -> None:
+    screen_width = 80
+    screen_height = 50
 
-    gamemap: GameMap
+    # Reserving space at the bottom for UI bar (y=45) and Message Log (y=46..49)
+    map_width = 80
+    map_height = 43
 
-    def __init__(
-        self,
-        gamemap: Optional[GameMap] = None,
-        x: int = 0,
-        y: int = 0,
-        char: str = "?",
-        color: Tuple[int, int, int] = (255, 255, 255),
-        name: str = "<Unnamed>",
-        blocks_movement: bool = False,
-    ):
-        self.x = x
-        self.y = y
-        self.char = char
-        self.color = color
-        self.name = name
-        self.blocks_movement = blocks_movement
-        if gamemap:
-            # If gamemap isn't provided now then it will be set later.
-            self.gamemap = gamemap
-            gamemap.entities.add(self)
+    room_max_size = 10
+    room_min_size = 6
+    max_rooms = 30
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
-        """Spawn a copy of this instance at the given location."""
-        clone = copy.deepcopy(self)
-        clone.x = x
-        clone.y = y
-        clone.gamemap = gamemap
-        gamemap.entities.add(clone)
-        return clone
+    max_monsters_per_room = 2
 
-    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
-        """Place this entity at a new location.  Handles moving across GameMaps."""
-        self.x = x
-        self.y = y
-        if gamemap:
-            if hasattr(self, "gamemap"):  # Possibly uninitialized.
-                self.gamemap.entities.remove(self)
-            self.gamemap = gamemap
-            gamemap.entities.add(self)
+    tileset = tcod.tileset.load_tilesheet(
+        "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
+    )
+
+    player = copy.deepcopy(entity_factories.player)
+    engine = Engine(player=player)
+
+    engine.game_map = generate_dungeon(
+        max_rooms=max_rooms,
+        room_min_size=room_min_size,
+        room_max_size=room_max_size,
+        map_width=map_width,
+        map_height=map_height,
+        max_monsters_per_room=max_monsters_per_room,
+        engine=engine,
+    )
+    engine.update_fov()
+
+    engine.message_log.add_message(
+        "Hello, Welcome to the tech demo of War 2136, if you are somehow playing this, what the fuck, its not out yet", color.welcome_text,
+    )
+
+    engine.event_handler = MainGameEventHandler(engine)
+
+    with tcod.context.new(
+        columns=screen_width,
+        rows=screen_height,
+        tileset=tileset,
+        title="WAR-2525",
+        vsync=True,
+    ) as context:
+        root_console = tcod.console.Console(screen_width, screen_height, order="F")
+        while True:
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
+
+            engine.event_handler.handle_events(context)
+
+
+if __name__ == "__main__":
+    main()

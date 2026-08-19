@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -8,8 +8,15 @@ if TYPE_CHECKING:
 
 
 class BaseComponent:
-    entity: Entity
+    parent: Entity  
+
+    def __init__(self, entity: Entity):
+        self.parent = entity
 
     @property
-    def engine(self) -> Engine:
-        return self.entity.gamemao.engine
+    def entity(self) -> Entity:
+        return self.parent
+
+    @property
+    def engine(self) -> Optional[Engine]:
+        return self.parent.gamemap.engine if self.parent.gamemap else None
