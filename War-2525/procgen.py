@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import random
+from entity_loader import EntityLoader
 from typing import Iterator, List, Tuple, TYPE_CHECKING
 
 import tcod
 
-import entity_factories
 from game_map import GameMap
 import tiles_type
 
@@ -43,19 +43,28 @@ class RectangularRoom:
 
 
 def place_entities(
-    room: RectangularRoom, dungeon: GameMap, maximum_monsters: int
+    room: RectangularRoom, 
+    dungeon: GameMap, 
+    maximum_monsters: int,
+    monster_loader: EntityLoader,
 ) -> None:
     number_of_monsters = random.randint(0, maximum_monsters)
+
+    available_monsters = list(monster_loader.data.keys())
+
+    if not available_monsters:
+        return
 
     for i in range(number_of_monsters):
         x = random.randint(room.x1 + 1, room.x2 - 1)
         y = random.randint(room.y1 + 1, room.y2 - 1)
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            if random.random() < 0.8:
-                entity_factories.orc.spawn(dungeon, x, y)
-            else:
-                entity_factories.troll.spawn(dungeon, x, y)
+            monster_key = random.choice(available_monsters)
+
+            monster = monster_loader.spawn(monster_key, x, y)
+            monster.spawn(dungeon, x, y)
+            
 
 
 def tunnel_between(
@@ -86,6 +95,7 @@ def generate_dungeon(
     map_height: int,
     max_monsters_per_room: int,
     engine: Engine,
+    monster_loader: EntityLoader,
 ) -> GameMap:
     """Generate a new dungeon map."""
     player = engine.player
@@ -114,12 +124,11 @@ def generate_dungeon(
         if len(rooms) == 0:
             # The first room, where the player starts.
             player.place(*new_room.center, dungeon)
-        else:  # All rooms after the first.
-            # Dig out a tunnel between this room and the previous one.
+        else:
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tiles_type.floor
 
-        place_entities(new_room, dungeon, max_monsters_per_room)
+        place_entities(new_room, dungeon, max_monsters_per_room, monster_loader)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)

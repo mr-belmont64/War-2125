@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
+
 import copy
+import traceback
 
 import tcod
 
 import color
 from engine import Engine
-import entity_factories
+from entity import Actor
 from input_handler import MainGameEventHandler
+from entity_loader import EntityLoader
+from components.ai import HostileEnemy
+from components.fighter import Fighter
 from procgen import generate_dungeon
 
 
@@ -14,7 +19,6 @@ def main() -> None:
     screen_width = 80
     screen_height = 50
 
-    # Reserving space at the bottom for UI bar (y=45) and Message Log (y=46..49)
     map_width = 80
     map_height = 43
 
@@ -28,8 +32,18 @@ def main() -> None:
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
-    player = copy.deepcopy(entity_factories.player)
+    player = Actor(
+        x=0,
+        y=0,
+        char="@",
+        color=(255, 255, 255),
+        name="Survivor",
+        ai_cls=HostileEnemy,
+        fighter=Fighter(hp=50, defense=2, power=5),
+    )
+
     engine = Engine(player=player)
+    monster_loader = EntityLoader("monsters/zeds.json")
 
     engine.game_map = generate_dungeon(
         max_rooms=max_rooms,
@@ -39,11 +53,12 @@ def main() -> None:
         map_height=map_height,
         max_monsters_per_room=max_monsters_per_room,
         engine=engine,
+        monster_loader=monster_loader,
     )
     engine.update_fov()
 
     engine.message_log.add_message(
-        "Hello, Welcome to the tech demo of War 2136, if you are somehow playing this, what the fuck, its not out yet", color.welcome_text,
+        "Hello, Welcome to the tech demo of War 2136, if you are playing this, what the fuck the game isn't even out yet.", color.welcome_text,
     )
 
     engine.event_handler = MainGameEventHandler(engine)
@@ -52,7 +67,7 @@ def main() -> None:
         columns=screen_width,
         rows=screen_height,
         tileset=tileset,
-        title="WAR-2525",
+        title="WAR-2136",
         vsync=True,
     ) as context:
         root_console = tcod.console.Console(screen_width, screen_height, order="F")

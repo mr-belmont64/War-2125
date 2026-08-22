@@ -30,7 +30,7 @@ class Engine:
                 try:
                     entity.ai.perform()
                 except Exception:
-                    pass  
+                    pass
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the player's point of view."""

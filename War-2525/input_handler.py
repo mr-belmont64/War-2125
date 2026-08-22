@@ -4,7 +4,15 @@ from typing import Optional, TYPE_CHECKING
 
 import tcod.event
 
-from actions import Action, BumpAction, EscapeAction, WaitAction
+from actions import (
+    Action,
+    BumpAction,
+    EscapeAction,
+    WaitAction
+)
+import color
+import exceptions
+
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -41,11 +49,22 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def __init__(self, engine: Engine):
         self.engine = engine
 
-    def handle_events(self, context: tcod.context.Context) -> None:
-        for event in tcod.event.wait():
-            context.convert_event(event)
-            self.dispatch(event)
+    def handle_events(self, event: tcod.event.Event) -> None:
+        self.handle_action(self.dispatch(event))
 
+    def handle_action(self, action: Optional[Action]) -> bool:
+        if action is None: return False
+
+        try: action.perform()
+        except exceptions.Impossibale as exc:
+            self.engine.message_log.add_message(exc.args[0], color.impossible)
+            return False
+
+        self.engine.handle_enemy_turns()
+
+        self.engine.update_fov()
+        return True
+            
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
             self.engine.mouse_location = event.tile.x, event.tile.y
@@ -58,19 +77,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
     
 class MainGameEventHandler(EventHandler):
-    def handle_events(self, context: tcod.context.Context) -> None:
-        for event in tcod.event.wait():
-            context.convert_event(event)
-
-            action = self.dispatch(event)
-
-            if action is None:
-                continue
-
-            action.perform()
-
-            self.engine.handle_enemy_turns()
-            self.engine.update_fov()
+    
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         action: Optional[Action] = None
@@ -91,23 +98,9 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-    def handle_events(self, context: tcod.context.Context) -> None:
-        for event in tcod.event.wait():
-            action = self.dispatch(event)
-
-            if action is None:
-                continue
-
-            action.perform()
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        action: Optional[Action] = None
-        key = event.sym
-
-        if key == tcod.event.KeySym.ESCAPE:
-            action = EscapeAction(self.engine.player)
-
-        return action
+    def ev_keydown(self, event: tcod.event.KeyDown)-> None:
+        if event.sym == tcod.event.K_ESCAPE:
+            raise SystemExit()
 
 CURSOR_Y_KEYS = {
     tcod.event.KeySym.UP: -1,

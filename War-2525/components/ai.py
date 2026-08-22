@@ -6,14 +6,20 @@ import numpy as np
 import tcod
 
 from actions import Action, MeleeAction, MovementAction, WaitAction
-from components.base_component import BaseComponent
 
 if TYPE_CHECKING:
     from entity import Actor
+    from engine import Engine
 
 
-class BaseAI(BaseComponent):
-    entity: Actor
+class BaseAI:
+    def __init__(self, entity: Actor):
+        super().__init__()
+        self.entity = entity
+
+    @property
+    def engine(self) -> Engine:
+        return self.entity.gamemap.engine
 
     def perform(self) -> None:
         raise NotImplementedError()
@@ -44,6 +50,7 @@ class HostileEnemy(BaseAI):
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))
 
+        
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance <= 1:
                 return MeleeAction(self.entity, dx, dy).perform()
