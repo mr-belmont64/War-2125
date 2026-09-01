@@ -1,13 +1,9 @@
-# WAR-2525
+# WAR: 2125
 
-An Open Source roguelike built in python inspired by C:DDA and Wasteland
+War 2125 is an ascii survival rogue-like. You are one of the few unlikely to be abandoned on earth during the space age. Your only goal is to survive and make sure you are remembered or fall into the wastes like the millions before you.
 
-## Overveiw
-Set in the U.S in 2525 after a war between three factions starts the wasteland. You are a survivor of no renown who must survive at all costs but beware! You cant trust anyone.
+# About Game
+War 2125 is open source mostly because I'm a solo dev who's not looking to sell it on steam. The main basis is to have a Dwarf Fortress like history in a post-war torn earth with cdda style nested pockets. The games first release has a deadline for November 26th but may release sooner if I can lock in.
 
-## Intellectual Property & Licensing
-* **Engine & Code:** Licensed under the MIT License. Feel free to fork, modify, and contribute!
-* **Lore & Setting:** All world-building, storyline, regional lore, faction names, and narrative content are Copyright © Wylie R. Cooper. All Rights Reserved.
-
-# Help Wanted
-If anyone wants to help work on this project send me a DM on my Discord, Rickashy582 and join my sever where you'll be able to help on the engine
+# Discord
+idk, I may make one but right now I don't have a product to worry about this. When I do I may change this up.
