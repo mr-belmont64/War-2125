@@ -63,6 +63,29 @@ class GameMap:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console) -> None:
+
+        viewport_width = 80
+        viewport_height = 43
+
+        cam_x = max(0, min(self.engine.player.x - viewport_width // 2, self.width - viewport_width))
+        cam_y = max(0, min(self.engine.player.y - viewport_height // 2, self.height - viewport_height))
+
+
+        visible_slice = self.visible[cam_x : cam_x + viewport_width, cam_y : cam_y + viewport_height]
+        explored_slice = self.explored[cam_x : cam_x + viewport_width, cam_y : cam_y + viewport_height]
+        tiles_slice = self.tiles[cam_x : cam_x + viewport_width, cam_y : cam_y + viewport_height]
+    
+        console.rgb[0:viewport_width, 0:viewport_height] = np.select(
+            condlist=[visible_slice, explored_slice],
+            choicelist=[tiles_slice["light"], tiles_slice["dark"]],
+            default=tiles_type.SHROUD,
+        )
+
+        for entity in self.entities:
+            screen_x = entity.x - cam_x
+            screen_y = entity.y - cam_y
+            if 0 <= screen_x < viewport_width and 0 <= screen_y < viewport_height:
+                console.print(x=screen_x, y=screen_y, string=entity.char, fg=entity.color)
         """
         Renders the map.
         If a tile is in 'visible', draw 'light'.
@@ -70,9 +93,9 @@ class GameMap:
         Otherwise, draw 'SHROUD'.
         """
         
-        console.rgb[0: self.width, 0: self.height] = np.select(
-            condlist=[self.visible, self.explored],
-            choicelist=[self.tiles["light"], self.tiles["dark"]],
+        console.rgb[0: viewport_width, 0: viewport_height] = np.select(
+            condlist=[visible_slice, explored_slice],
+            choicelist=[tiles_slice["light"], tiles_slice["dark"]],
             default=tiles_type.SHROUD,
         )
 
@@ -81,7 +104,9 @@ class GameMap:
         )
 
         for entity in entities_sorted_for_rendering:
-            if self.visible[entity.x, entity.y]:
-                console.print(
-                    x=entity.x, y=entity.y, string=entity.char, fg=entity.color
-                )
+            screen_x = entity.x - cam_x
+            screen_y = entity.y - cam_y
+
+            if 0 <= screen_x < viewport_width and 0 <= screen_y < viewport_height:
+                    if entity is self.engine.player or self.visible[entity.x, entity.y]:
+                        console.print(x=screen_x, y=screen_y, string=entity.char, fg=entity.color)
